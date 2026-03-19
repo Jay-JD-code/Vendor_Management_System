@@ -1,0 +1,5 @@
+package com.vms.document.repository;
+
+public class DocumentRepository {
+
+}

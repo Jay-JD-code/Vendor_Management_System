@@ -1,0 +1,5 @@
+package com.vms.auth.controller;
+
+public class AuthController {
+
+}

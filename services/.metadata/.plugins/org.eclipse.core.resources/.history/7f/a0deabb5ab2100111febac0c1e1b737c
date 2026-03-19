@@ -1,0 +1,40 @@
+package com.vms.config;
+import static org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions.route;
+
+import org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.function.RouterFunction;
+import org.springframework.web.servlet.function.ServerResponse;
+
+@Configuration
+public class GatewayRoutesConfig {
+
+    @Bean
+    RouterFunction<ServerResponse> gatewayRoutes() {
+
+        return route("vendor_service")
+                .GET("/api/vendors/**",
+                        HandlerFunctions.http("http://localhost:8082"))
+
+                .POST("/api/vendors/**",
+                        HandlerFunctions.http("http://localhost:8082"))
+
+                .build()
+
+            .and(route("order_service")
+                .GET("/api/orders/**",
+                        HandlerFunctions.http("http://localhost:8083"))
+                .build())
+
+            .and(route("payment_service")
+                .GET("/api/payments/**",
+                        HandlerFunctions.http("http://localhost:8084"))
+                .build())
+
+            .and(route("auth_service")
+                .POST("/api/auth/**",
+                        HandlerFunctions.http("http://localhost:8081"))
+                .build());
+    }
+}

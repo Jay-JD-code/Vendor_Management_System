@@ -1,0 +1,19 @@
+package com.vms.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import static org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions.route;
+
+@Configuration
+public class GatewayRoutesConfig {
+
+    @Bean
+     org.springframework.web.servlet.function.RouterFunction<?> gatewayRoutes() {
+
+        return route("VMS-AUTH")
+                .route(request -> request.path().startsWith("/api/auth"),
+                        http -> http.uri("http://localhost:8081"))
+                .build();
+    }
+}

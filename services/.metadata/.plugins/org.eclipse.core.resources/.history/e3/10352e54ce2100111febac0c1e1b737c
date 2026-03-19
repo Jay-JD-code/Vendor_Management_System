@@ -1,0 +1,5 @@
+package com.vms.vendor.dto.response;
+
+public class VendorResponse {
+
+}

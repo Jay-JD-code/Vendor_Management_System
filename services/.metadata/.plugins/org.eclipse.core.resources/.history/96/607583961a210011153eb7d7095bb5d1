@@ -1,0 +1,5 @@
+package com.vms.auth.config;
+
+public class SecurityConfig {
+
+}

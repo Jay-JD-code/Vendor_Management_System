@@ -1,0 +1,20 @@
+package com.vms.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.function.RouterFunction;
+
+import static org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions.route;
+import static org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions.http;
+
+@Configuration
+public class GatewayRoutesConfig {
+
+    @Bean
+     RouterFunction<?> gatewayRoutes() {
+
+        return route("auth-service")
+                .route("/api/auth/**", http("http://localhost:8081"))
+                .build();
+    }
+}

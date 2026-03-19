@@ -1,0 +1,3 @@
+spring.application.name=VMS-API-GATEWAY
+
+spring.jpa.hibernate.ddl-auto=update

@@ -1,0 +1,50 @@
+package com.vms.service;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import com.vms.dto.LoginResponse;
+import com.vms.dto.LoginRequest;
+import com.vms.dto.RegisterRequest;
+import com.vms.entity.Role;
+import com.vms.entity.UserEntity;
+import com.vms.repository.UserRepository;
+import com.vms.util.JwtUtil;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class AuthService {
+
+	private final UserRepository userRepository;
+	private final ModelMapper modelMapper;
+	private final PasswordEncoder passwordEncoder;
+	private final JwtUtil jwtUtil;
+	
+	public void register(RegisterRequest req) {
+		UserEntity user = modelMapper.map(req, UserEntity.class);
+		
+		user.setPassword(passwordEncoder.encode(req.getPassword()));
+		
+		user.setRole(Role.VENDOR);
+		
+		userRepository.save(user);
+	}
+	
+	public LoginResponse login(LoginRequest request) {
+		UserEntity user = userRepository.findByUsername(request.getUsername())
+				.orElseThrow(()-> new RuntimeException("User not found"));
+		
+		if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+			throw new RuntimeException("Invalid Password");
+		}
+		
+		String token = jwtUtil.generateToken(user.getUsername(),user.getRole().name());
+		
+		return new LoginResponse(token, user.getRole().name());
+		
+	}
+}

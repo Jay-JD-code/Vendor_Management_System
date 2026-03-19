@@ -1,0 +1,18 @@
+package com.vms.util;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class JwtUtil {
+
+private final String SECRET = "vendor-secret-key";
+
+public Claims validateToken(String token) {
+
+    return Jwts.parser()
+            .setSigningKey(SECRET)
+            .parseClaimsJws(token)
+            .getBody();
+}
+
+}

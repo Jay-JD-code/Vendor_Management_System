@@ -1,0 +1,28 @@
+package com.vms.service;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.vms.dto.RegisterRequest;
+import com.vms.entity.UserEntity;
+import com.vms.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class AuthService {
+
+	private final UserRepository userRepository;
+	private final ModelMapper modelMapper;
+	private final PasswordEncoder passwordEncoder;
+	
+	public void register(RegisterRequest req) {
+		UserEntity user = modelMapper.map(req, UserEntity.class);
+		
+		user.setPassword(passwordEncoder.encode(req.getPassword()));
+		
+		userRepository.save(user);
+	}
+}

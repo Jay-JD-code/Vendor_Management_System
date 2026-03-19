@@ -1,0 +1,5 @@
+package com.vms.auth.entity;
+
+public class UserEntity {
+
+}

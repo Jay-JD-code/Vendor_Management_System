@@ -1,0 +1,5 @@
+package com.vms.gateway.util;
+
+public class JwtUtil {
+
+}

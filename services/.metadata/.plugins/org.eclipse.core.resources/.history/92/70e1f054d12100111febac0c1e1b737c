@@ -1,0 +1,5 @@
+package com.vms.vendor.service;
+
+public interface VendorService {
+
+}

@@ -1,0 +1,5 @@
+package com.vms.auth.service;
+
+public class AuthService {
+
+}

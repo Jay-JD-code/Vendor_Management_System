@@ -1,0 +1,5 @@
+package com.vms.utils;
+
+public class JwtUtil {
+
+}

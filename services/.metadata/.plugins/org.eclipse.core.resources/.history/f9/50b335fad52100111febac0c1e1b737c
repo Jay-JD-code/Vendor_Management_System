@@ -1,0 +1,5 @@
+package com.vms.vendor.config;
+
+public class SecurityConfig {
+
+}

@@ -1,0 +1,5 @@
+package com.vms.filter;
+
+public class LoggingFilter {
+
+}

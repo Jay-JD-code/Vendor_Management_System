@@ -1,0 +1,5 @@
+package com.vms.gateway.filter;
+
+public class LoggingFilter {
+
+}

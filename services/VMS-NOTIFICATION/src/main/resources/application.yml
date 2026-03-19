@@ -1,0 +1,18 @@
+spring:
+  kafka:
+    bootstrap-servers: localhost:8087
+    consumer:
+      group-id: notification-group
+      auto-offset-reset: earliest
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: jaydeshmukh0708@gmail.com
+    password: jay0708!
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true

@@ -1,0 +1,5 @@
+package com.vms.vendor.controller;
+
+public class VendorController {
+
+}

@@ -1,0 +1,15 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:postgresql://neondb_owner:npg_Jx2nY3bfkXCT@ep-withered-tooth-a1r5g4ba-pooler.ap-southeast-1.aws.neon.tech/authdb?sslmode=require&channel_binding=require
+  
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format-sql: true
