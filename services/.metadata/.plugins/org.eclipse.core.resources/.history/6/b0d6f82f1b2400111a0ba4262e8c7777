@@ -1,0 +1,12 @@
+package com.vms.orders.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.vms.orders.entity.PurchaseOrder;
+
+public interface OrderRepository extends JpaRepository<PurchaseOrder, Long> {
+
+	List<PurchaseOrder> findByVendorId(String vendorId);
+}

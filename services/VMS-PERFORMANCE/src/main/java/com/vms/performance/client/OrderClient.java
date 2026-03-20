@@ -1,0 +1,15 @@
+package com.vms.performance.client;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import com.vms.performance.dto.OrderResponse;
+import com.vms.performance.dto.PageResponse;
+
+@FeignClient(name = "VMS-ORDERS", url = "http://localhost:8084")
+public interface OrderClient {
+
+    @GetMapping("/api/orders/vendor/{vendorId}")
+    PageResponse<OrderResponse> getOrders(@PathVariable String vendorId);
+}

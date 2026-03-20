@@ -1,0 +1,82 @@
+package com.vms.payments.service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.vms.payments.client.OrderClient;
+import com.vms.payments.dto.OrderResponse;
+import com.vms.payments.dto.PaymentRequest;
+import com.vms.payments.entity.OrderStatus;
+import com.vms.payments.entity.PaymentEntity;
+import com.vms.payments.entity.PaymentStatus;
+import com.vms.payments.repository.PaymentRepository;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class PaymentService {
+
+    private final PaymentRepository paymentRepository;
+    private final OrderClient orderClient;
+
+    public PaymentEntity createPayment(PaymentRequest request) {
+
+        // 1. Fetch order
+        OrderResponse order = orderClient.getOrder(request.getOrderId());
+
+        // 2. Validate order status
+        if (!order.getStatus().equals("DELIVERED")) {
+            throw new RuntimeException("Payment allowed only after delivery");
+        }
+
+        // 3. Prevent duplicate payment
+        paymentRepository.findByOrderId(request.getOrderId())
+                .ifPresent(p -> {
+                    throw new RuntimeException("Payment already exists");
+                });
+
+        // 🔥 4. Create ENTITY (IMPORTANT FIX)
+        PaymentEntity payment = new PaymentEntity();
+
+        payment.setOrderId(request.getOrderId());
+        payment.setAmount(request.getAmount());
+        payment.setMethod(request.getMethod());
+
+        // values from Order Service
+        payment.setVendorId(order.getVendorId());
+
+        // system-generated values
+        payment.setStatus(PaymentStatus.PENDING);
+        payment.setCreatedAt(LocalDateTime.now());
+
+        // 5. Save entity
+        return paymentRepository.save(payment);
+    }
+    public PaymentEntity updateStatus(Long id, PaymentStatus status) {
+
+    	PaymentEntity payment = paymentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+
+        payment.setStatus(status);
+
+        PaymentEntity updatedPayment = paymentRepository.save(payment);
+
+       
+        if (status == PaymentStatus.COMPLETED) {
+
+        	orderClient.updateOrderStatus(
+        		    payment.getOrderId(),
+        		    OrderStatus.COMPLETED
+        		);
+        }
+
+        return updatedPayment;
+    }
+
+    public List<PaymentEntity> getVendorPayments(String vendorId) {
+        return paymentRepository.findByVendorId(vendorId);
+    }
+}

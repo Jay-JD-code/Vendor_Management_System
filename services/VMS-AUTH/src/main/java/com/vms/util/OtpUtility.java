@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class OtpUtility {
 
-	public String generateOtp() {
-		return String.valueOf((int)(Math.random()* 900000)+ 100000);
-	}
+    public static String generateOtp() {
+        return String.valueOf((int)(Math.random() * 900000) + 100000);
+    }
 }

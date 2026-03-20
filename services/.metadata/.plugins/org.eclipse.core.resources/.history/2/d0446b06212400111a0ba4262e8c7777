@@ -1,0 +1,5 @@
+package com.vms.payments.entity;
+
+public class PaymentEntity {
+
+}

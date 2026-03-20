@@ -1,0 +1,5 @@
+package com.vms.payments.client;
+
+public class OrderClient {
+
+}

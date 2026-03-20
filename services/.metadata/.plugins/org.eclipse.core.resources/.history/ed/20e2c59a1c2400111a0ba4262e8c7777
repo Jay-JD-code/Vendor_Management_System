@@ -1,0 +1,137 @@
+package com.vms.orders.service;
+
+import java.awt.print.Pageable;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+import com.vms.orders.dto.OrderItemResponse;
+import com.vms.orders.dto.OrderRequest;
+import com.vms.orders.dto.OrderResponse;
+import com.vms.orders.entity.OrderItem;
+import com.vms.orders.entity.OrderStatus;
+import com.vms.orders.entity.PurchaseOrder;
+import com.vms.orders.repository.OrderItemRepository;
+import com.vms.orders.repository.OrderRepository;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class OrderService {
+
+    private final OrderRepository orderRepository;
+    private final OrderItemRepository itemRepository;
+
+    public PurchaseOrder createOrder(OrderRequest request) {
+
+        PurchaseOrder order = new PurchaseOrder();
+        order.setVendorId(request.getVendorId());
+        order.setStatus(OrderStatus.CREATED);
+        order.setCreatedAt(LocalDateTime.now());
+
+        PurchaseOrder savedOrder = orderRepository.save(order);
+
+        for (OrderItem item : request.getItems()) {
+
+            OrderItem newItem = new OrderItem(); 
+
+            newItem.setOrderId(savedOrder.getId());
+            newItem.setProductName(item.getProductName());
+            newItem.setQuantity(item.getQuantity());
+            newItem.setPrice(item.getPrice());
+
+            itemRepository.save(newItem);
+        }
+
+        return savedOrder;
+    }
+    
+    public OrderResponse getOrderDetails(Long orderId) {
+
+        // 1. Fetch order
+        PurchaseOrder order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // 2. Fetch items
+        List<OrderItem> items = itemRepository.findByOrderId(orderId);
+
+        // 3. Map to response
+        OrderResponse response = new OrderResponse();
+
+        response.setOrderId(order.getId());
+        response.setVendorId(order.getVendorId());
+        response.setStatus(order.getStatus().name());
+        response.setCreatedAt(order.getCreatedAt());
+
+        List<OrderItemResponse> itemResponses = items.stream().map(item -> {
+            OrderItemResponse dto = new OrderItemResponse();
+            dto.setProductName(item.getProductName());
+            dto.setQuantity(item.getQuantity());
+            dto.setPrice(item.getPrice());
+            return dto;
+        }).toList();
+
+        response.setItems(itemResponses);
+
+        return response;
+    }
+
+    public Page<PurchaseOrder> getVendorOrders(
+    		String vendorId,
+    		OrderStatus status,
+    		int page,
+    		int size
+    		) {
+    	
+    	Pageable pageable = PageRequest.of(
+    			page,
+    			size,
+    			Sort.by("createdAt").descending()
+    			);
+    	
+    	if(status!= null) {
+        return orderRepository.findByVendorIdAndStatus(vendorId,status,pageable);
+    	}
+    }
+    
+    private boolean isValidTransition(OrderStatus current, OrderStatus next) {
+
+        return switch (current) {
+
+            case CREATED -> next == OrderStatus.APPROVED || next == OrderStatus.CANCELLED;
+
+            case APPROVED -> next == OrderStatus.SHIPPED || next == OrderStatus.CANCELLED;
+
+            case SHIPPED -> next == OrderStatus.DELIVERED;
+
+            case DELIVERED -> next == OrderStatus.COMPLETED;
+
+            case COMPLETED, CANCELLED -> false;
+
+        };
+    }
+
+    public PurchaseOrder updateStatus(Long orderId, OrderStatus status) {
+
+        PurchaseOrder order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        OrderStatus currentStatus = order.getStatus();
+
+       
+        if (!isValidTransition(currentStatus, status)) {
+            throw new RuntimeException(
+                    "Invalid status transition from " + currentStatus + " to " + status
+            );
+        }
+
+        order.setStatus(status);
+
+        return orderRepository.save(order);
+    }
+}

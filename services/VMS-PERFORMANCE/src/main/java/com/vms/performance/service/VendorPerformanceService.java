@@ -1,0 +1,69 @@
+package com.vms.performance.service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.vms.performance.client.OrderClient;
+import com.vms.performance.client.PaymentClient;
+import com.vms.performance.dto.OrderResponse;
+import com.vms.performance.dto.PageResponse;
+import com.vms.performance.dto.PaymentResponse;
+import com.vms.performance.entity.VendorPerformance;
+import com.vms.performance.repository.VendorPerformanceRepository;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class VendorPerformanceService {
+
+    private final VendorPerformanceRepository repository;
+    private final OrderClient orderClient;
+    private final PaymentClient paymentClient;
+
+    public VendorPerformance calculatePerformance(String vendorId) {
+
+    	PageResponse<OrderResponse> page = orderClient.getOrders(vendorId);
+
+    	List<OrderResponse> orders = page.getContent();
+        List<PaymentResponse> payments = paymentClient.getPayments(vendorId);
+
+        int totalOrders = orders.size();
+
+        int completedOrders = (int) orders.stream()
+                .filter(o -> "COMPLETED".equals(o.getStatus()))
+                .count();
+
+        int onTimeDeliveries = (int) orders.stream()
+                .filter(o -> "DELIVERED".equals(o.getStatus()))
+                .count();
+
+        double avgDeliveryTime = orders.stream()
+                .filter(o -> o.getStatus().equals("DELIVERED"))
+                .mapToLong(o -> java.time.Duration.between(
+                        o.getCreatedAt(),
+                        LocalDateTime.now()
+                ).toHours())
+                .average()
+                .orElse(0);
+
+        double rating = (completedOrders * 1.0 / Math.max(totalOrders, 1)) * 5;
+
+        VendorPerformance vp = new VendorPerformance();
+        vp.setVendorId(vendorId);
+        vp.setTotalOrders(totalOrders);
+        vp.setCompletedOrders(completedOrders);
+        vp.setOnTimeDeliveries(onTimeDeliveries);
+        vp.setAverageDeliveryTime(avgDeliveryTime);
+        vp.setRating(rating);
+
+        return repository.save(vp);
+    }
+
+    public VendorPerformance getPerformance(String vendorId) {
+        return repository.findById(vendorId)
+                .orElseThrow(() -> new RuntimeException("No data found"));
+    }
+}

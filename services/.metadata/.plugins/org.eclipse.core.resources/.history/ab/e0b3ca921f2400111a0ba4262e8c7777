@@ -1,0 +1,13 @@
+package com.vms.payments;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class VmsPaymentsApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(VmsPaymentsApplication.class, args);
+	}
+
+}

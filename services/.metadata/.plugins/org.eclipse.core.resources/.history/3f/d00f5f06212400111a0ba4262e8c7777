@@ -1,0 +1,5 @@
+package com.vms.payments.controller;
+
+public class PaymentController {
+
+}

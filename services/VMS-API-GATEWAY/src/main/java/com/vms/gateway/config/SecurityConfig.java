@@ -41,6 +41,7 @@ public class SecurityConfig {
                     // public auth APIs
                     .requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers("/api/documents/**").permitAll()
+                    .requestMatchers("/api/orders/**").permitAll()
 
                     // role-based access
                     .requestMatchers("/api/vendors/**").permitAll()

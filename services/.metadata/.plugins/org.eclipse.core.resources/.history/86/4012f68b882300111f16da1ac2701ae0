@@ -1,0 +1,8 @@
+package com.vms.util;
+
+public class OtpUtility {
+
+    public static String generateOtp() {
+        return String.valueOf((int)(Math.random() * 900000) + 100000);
+    }
+}

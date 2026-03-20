@@ -1,0 +1,5 @@
+package com.vms.orders.repository;
+
+public class OrderRepository {
+
+}

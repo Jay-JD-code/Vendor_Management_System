@@ -1,0 +1,19 @@
+package com.vms.entity;
+
+import jakarta.persistence.Entity;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class OtpEntity {
+
+	private String resetToken;
+
+	private String email;
+	
+}

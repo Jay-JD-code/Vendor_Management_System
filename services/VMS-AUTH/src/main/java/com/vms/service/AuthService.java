@@ -1,6 +1,7 @@
 package com.vms.service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import com.vms.dto.ForgotPasswordRequest;
 import com.vms.dto.LoginRequest;
 import com.vms.dto.RegisterRequest;
 import com.vms.dto.ResetPasswordRequest;
+import com.vms.dto.VerifyOtpRequest;
 import com.vms.entity.OtpEntity;
 import com.vms.entity.Role;
 import com.vms.entity.UserEntity;
@@ -91,24 +93,45 @@ public class AuthService {
 		
 	}
     
+    public String verifyOtp(VerifyOtpRequest request) {
+
+        OtpEntity otpData = otpRepository
+                .findByEmailAndOtp(request.getEmail(), request.getOtp())
+                .orElseThrow(() -> new RuntimeException("Invalid OTP"));
+
+        if (otpData.getExpiryTime().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("OTP expired");
+        }
+
+        // ✅ Generate token AFTER validation
+        String resetToken = UUID.randomUUID().toString();
+
+        otpData.setResetToken(resetToken);
+        otpRepository.save(otpData);
+
+        return resetToken; // 🔥 IMPORTANT
+    }
+    
     public void resetPassword(ResetPasswordRequest request) {
-    	
-    	OtpEntity otpData = otpRepository
-    			.findByEmailAndOtp(request.getEmail(), request.getOtp())
-    			.orElseThrow(()-> new RuntimeException("Invalid OTP"));
-    	
-    	if(otpData.getExpiryTime().isBefore(LocalDateTime.now())) {
-    		throw new RuntimeException("OTP Expired");
-    	}
-    	
-    	UserEntity user = userRepository.findByEmail(request.getEmail())
-    			.orElseThrow(()-> new RuntimeException("User not found"));
-    	
-    	user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-  
-    	userRepository.save(user);
-    	
-    	otpRepository.delete(otpData);
-    	
+
+        if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
+            throw new RuntimeException("Passwords do not match");
+        }
+
+        OtpEntity otpData = otpRepository
+                .findByResetToken(request.getResetToken())
+                .orElseThrow(() -> new RuntimeException("Invalid reset token"));
+
+        if (otpData.getExpiryTime().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Reset token expired");
+        }
+
+        UserEntity user = userRepository.findByEmail(otpData.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        otpRepository.delete(otpData); // 🔥 invalidate token
     }
 }

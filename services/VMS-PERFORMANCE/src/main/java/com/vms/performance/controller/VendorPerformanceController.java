@@ -1,0 +1,30 @@
+package com.vms.performance.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.vms.performance.service.VendorPerformanceService;
+
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequestMapping("/api/performance")
+@RequiredArgsConstructor
+public class VendorPerformanceController {
+
+    private final VendorPerformanceService service;
+
+    @PostMapping("/calculate/{vendorId}")
+    public ResponseEntity<?> calculate(@PathVariable String vendorId) {
+        return ResponseEntity.ok(service.calculatePerformance(vendorId));
+    }
+
+    @GetMapping("/{vendorId}")
+    public ResponseEntity<?> get(@PathVariable String vendorId) {
+        return ResponseEntity.ok(service.getPerformance(vendorId));
+    }
+}

@@ -1,0 +1,5 @@
+package com.vms.orders.entity;
+
+public class PurchaseOrder {
+
+}

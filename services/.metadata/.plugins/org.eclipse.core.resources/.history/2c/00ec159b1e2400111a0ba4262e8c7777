@@ -1,0 +1,5 @@
+package com.vms.payments.repository;
+
+public class PaymentRepository {
+
+}

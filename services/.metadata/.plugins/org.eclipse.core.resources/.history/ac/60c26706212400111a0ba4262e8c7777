@@ -1,0 +1,5 @@
+package com.vms.payments.dto;
+
+public class OrderResponse {
+
+}

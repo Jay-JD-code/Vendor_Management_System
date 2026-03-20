@@ -1,0 +1,5 @@
+package com.vms.performance.client;
+
+public interface PaymentClient {
+
+}

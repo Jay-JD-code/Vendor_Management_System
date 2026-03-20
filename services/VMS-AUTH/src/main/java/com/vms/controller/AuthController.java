@@ -3,6 +3,8 @@ package com.vms.controller;
 
 
 
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +21,7 @@ import com.vms.dto.RegisterRequest;
 import com.vms.dto.RegisterResponse;
 import com.vms.dto.ResetPasswordRequest;
 import com.vms.dto.TokenResponse;
+import com.vms.dto.VerifyOtpRequest;
 import com.vms.entity.UserEntity;
 import com.vms.repository.UserRepository;
 import com.vms.service.AuthService;
@@ -83,6 +86,13 @@ public class AuthController {
 			    return ResponseEntity.ok("OTP sent to email");
 			}
 			
+			@PostMapping("/verify-otp")
+			public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtpRequest request) {
+
+			    String resetToken = service.verifyOtp(request);
+
+			    return ResponseEntity.ok(Map.of("resetToken", resetToken));
+			}
 			
 					@PostMapping("/reset-password")
 					public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
@@ -91,6 +101,8 @@ public class AuthController {
 
 					    return ResponseEntity.ok("Password updated successfully");
 					}
+					
+			
 	
 	@GetMapping("/test")
 	public String test() {
